@@ -1,4 +1,5 @@
-import React, { useState } from 'react'
+import React, { useState, Suspense } from 'react'
+import Galaxy from './Galaxy.jsx'
 
 const AuthPage = ({ onAuthSuccess, onSkipAuth }) => {
   const [isLogin, setIsLogin] = useState(true)
@@ -59,11 +60,37 @@ const AuthPage = ({ onAuthSuccess, onSkipAuth }) => {
       background: 'linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%)',
       overflow: 'hidden'
     }}>
+      {/* Galaxy Background */}
+      <div style={{
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        width: '100%',
+        height: '100%',
+        zIndex: -1,
+        pointerEvents: 'none'
+      }}>
+        <Suspense fallback={
+          <div style={{ width: '100%', height: '100%', background: 'linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%)' }} />
+        }>
+          <Galaxy 
+            mouseInteraction={true}
+            density={1.5}
+            glowIntensity={0.2}
+            saturation={0}
+            hueShift={200}
+            twinkleIntensity={0.4}
+            rotationSpeed={0.05}
+            starSpeed={0.3}
+            speed={0.8}
+          />
+        </Suspense>
+      </div>
 
       {/* Auth Card */}
       <div style={{
         position: 'relative',
-        zIndex: 1,
+        zIndex: 10,
         width: '100%',
         maxWidth: '400px',
         background: 'rgba(255, 255, 255, 0.1)',
