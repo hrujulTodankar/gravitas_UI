@@ -74,15 +74,15 @@ const AuthPage = ({ onAuthSuccess, onSkipAuth }) => {
           <div style={{ width: '100%', height: '100%', background: 'linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%)' }} />
         }>
           <Galaxy 
-            mouseInteraction={true}
-            density={1.5}
-            glowIntensity={0.2}
+            mouseInteraction={false}
+            density={0.5}
+            glowIntensity={0.1}
             saturation={0}
             hueShift={200}
-            twinkleIntensity={0.4}
-            rotationSpeed={0.05}
-            starSpeed={0.3}
-            speed={0.8}
+            twinkleIntensity={0.1}
+            rotationSpeed={0.01}
+            starSpeed={0.1}
+            speed={0.3}
           />
         </Suspense>
       </div>
