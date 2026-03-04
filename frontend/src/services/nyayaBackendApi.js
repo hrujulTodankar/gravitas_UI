@@ -151,18 +151,4 @@ export function getEnforcementStateDetails(state) {
   return stateMap[state] || stateMap.ALLOW
 }
 
-/**
- * Test connection to Nyaya backend
- * @returns {Promise<boolean>} True if backend is reachable
- */
-export async function testNyayaConnection() {
-  try {
-    const response = await nyayaClient.get('/health')
-    return response.status === 200
-  } catch (error) {
-    console.warn('Nyaya backend not reachable at', NYAYA_API_BASE)
-    return false
-  }
-}
-
-export default { queryNyayaDecision, testNyayaConnection }
+export default { queryNyayaDecision, testNyayaConnection, isValidEnforcementState, getEnforcementStateDetails }
