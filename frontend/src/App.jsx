@@ -446,6 +446,13 @@ function App() {
       setUser(JSON.parse(storedUser))
     }
     setIsAuthChecking(false)
+
+    // Safeguard: ensure auth check completes within 2 seconds
+    const authTimeout = setTimeout(() => {
+      setIsAuthChecking(false)
+    }, 2000)
+
+    return () => clearTimeout(authTimeout)
   }, [])
 
   const handleAuthSuccess = (userData) => {

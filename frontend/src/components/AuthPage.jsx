@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, Suspense } from 'react'
 import Galaxy from './Galaxy.jsx'
 
 const AuthPage = ({ onAuthSuccess, onSkipAuth }) => {
@@ -10,6 +10,7 @@ const AuthPage = ({ onAuthSuccess, onSkipAuth }) => {
   })
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState('')
+  const [galaxyError, setGalaxyError] = useState(false)
 
   const handleSubmit = async (e) => {
     e.preventDefault()
@@ -60,27 +61,48 @@ const AuthPage = ({ onAuthSuccess, onSkipAuth }) => {
       background: '#000',
       overflow: 'hidden'
     }}>
-      {/* Galaxy Background */}
-      <div style={{ 
-        position: 'absolute', 
-        top: 0, 
-        left: 0, 
-        width: '100%', 
-        height: '100%', 
-        zIndex: 0 
-      }}>
-        <Galaxy 
-          mouseInteraction={true}
-          density={1.5}
-          glowIntensity={0.2}
-          saturation={0}
-          hueShift={200}
-          twinkleIntensity={0.4}
-          rotationSpeed={0.05}
-          starSpeed={0.3}
-          speed={0.8}
-        />
-      </div>
+      {/* Galaxy Background with Fallback */}
+      {!galaxyError && (
+        <div style={{ 
+          position: 'absolute', 
+          top: 0, 
+          left: 0, 
+          width: '100%', 
+          height: '100%', 
+          zIndex: 0 
+        }}>
+          <Suspense fallback={
+            <div style={{ width: '100%', height: '100%', background: 'linear-gradient(135deg, #1a1a2e 0%, #16213e 100%)' }} />
+          }>
+            <ErrorBoundaryGalaxy onError={() => setGalaxyError(true)}>
+              <Galaxy 
+                mouseInteraction={true}
+                density={1.5}
+                glowIntensity={0.2}
+                saturation={0}
+                hueShift={200}
+                twinkleIntensity={0.4}
+                rotationSpeed={0.05}
+                starSpeed={0.3}
+                speed={0.8}
+              />
+            </ErrorBoundaryGalaxy>
+          </Suspense>
+        </div>
+      )}
+
+      {/* Fallback background if Galaxy fails */}
+      {galaxyError && (
+        <div style={{ 
+          position: 'absolute', 
+          top: 0, 
+          left: 0, 
+          width: '100%', 
+          height: '100%', 
+          background: 'linear-gradient(135deg, #1a1a2e 0%, #16213e 100%)',
+          zIndex: 0
+        }} />
+      )}
 
       {/* Auth Card */}
       <div style={{
@@ -282,6 +304,32 @@ const AuthPage = ({ onAuthSuccess, onSkipAuth }) => {
       </div>
     </div>
   )
+}
+
+// Error Boundary for Galaxy component
+class ErrorBoundaryGalaxy extends React.Component {
+  constructor(props) {
+    super(props)
+    this.state = { hasError: false }
+  }
+
+  static getDerivedStateFromError(error) {
+    return { hasError: true }
+  }
+
+  componentDidCatch(error, errorInfo) {
+    console.warn('Galaxy component error:', error)
+    if (this.props.onError) {
+      this.props.onError()
+    }
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return null
+    }
+    return this.props.children
+  }
 }
 
 export default AuthPage
