@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import ProceduralTimeline from './ProceduralTimeline.jsx'
 import FeedbackButtons from './FeedbackButtons.jsx'
+import { legalQueryService } from '../services/nyayaApi.js'
 
 const MultiJurisdictionCard = () => {
   const [query, setQuery] = useState('')
@@ -8,6 +9,7 @@ const MultiJurisdictionCard = () => {
   const [isAnalyzing, setIsAnalyzing] = useState(false)
   const [comparativeAnalysis, setComparativeAnalysis] = useState(null)
   const [traceId, setTraceId] = useState(null)
+  const [error, setError] = useState(null)
 
   const availableJurisdictions = [
     { id: 'India', name: 'India', description: 'Comprehensive analysis under Indian law' },
@@ -27,35 +29,25 @@ const MultiJurisdictionCard = () => {
     if (!query.trim() || selectedJurisdictions.length === 0) return
 
     setIsAnalyzing(true)
+    setError(null)
     
-    // Simulate API call to Nyaya AI multi-jurisdiction endpoint
+    // Call real Nyaya AI backend
     try {
-      setTimeout(() => {
-        const mockTraceId = 'mock_multi_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9)
-        setTraceId(mockTraceId)
-        setComparativeAnalysis({
-          query: query,
-          jurisdictions: selectedJurisdictions,
-          results: selectedJurisdictions.map(jurisdiction => ({
-            jurisdiction,
-            confidence: 0.78 + Math.random() * 0.15,
-            analysis: `Based on your description, here's how ${jurisdiction} law addresses this matter...`,
-            keyDifferences: [
-              'Different procedural requirements',
-              'Varying statute of limitations',
-              'Distinct burden of proof standards'
-            ],
-            recommendations: [
-              `Consider ${jurisdiction}-specific legal counsel`,
-              'Review local jurisdiction requirements',
-              'Understand cross-border implications'
-            ]
-          }))
-        })
-        setIsAnalyzing(false)
-      }, 3000)
+      const result = await legalQueryService.submitMultiJurisdictionQuery({
+        query: query,
+        jurisdictions: selectedJurisdictions
+      })
+      
+      if (result.success) {
+        setTraceId(result.trace_id)
+        setComparativeAnalysis(result.data)
+      } else {
+        setError(result.error || 'Failed to get response from backend')
+      }
     } catch (error) {
       console.error('Error:', error)
+      setError(error.message || 'Failed to connect to backend')
+    } finally {
       setIsAnalyzing(false)
     }
   }

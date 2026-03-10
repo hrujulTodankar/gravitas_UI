@@ -38,7 +38,7 @@ export async function testQueryEndpoint() {
   try {
     const testQuery = 'What are the procedures for filing a civil suit in India?'
     
-    const response = await axios.post(`${NYAYA_API}/query`, {
+    const response = await axios.post(`${NYAYA_API}/nyaya/query`, {
       query: testQuery,
       jurisdiction: 'IN'
     }, { timeout: 30000 })
@@ -134,7 +134,7 @@ export async function testALLOWState() {
   console.log('\n🔍 TEST 5: ALLOW State Rendering...')
   
   try {
-    const response = await axios.post(`${NYAYA_API}/query`, {
+    const response = await axios.post(`${NYAYA_API}/nyaya/query`, {
       query: 'file a civil suit in district court',
       jurisdiction: 'IN'
     }, { timeout: 30000 })
@@ -167,7 +167,7 @@ export async function testBLOCKState() {
   console.log('\n🔍 TEST 6: BLOCK State Rendering (CRITICAL)...')
   
   try {
-    const response = await axios.post(`${NYAYA_API}/query`, {
+    const response = await axios.post(`${NYAYA_API}/nyaya/query`, {
       query: 'report criminal offense matters',
       jurisdiction: 'IN'
     }, { timeout: 30000 })
@@ -210,7 +210,7 @@ export async function testESCALATEState() {
   console.log('\n🔍 TEST 7: ESCALATE State Rendering...')
   
   try {
-    const response = await axios.post(`${NYAYA_API}/query`, {
+    const response = await axios.post(`${NYAYA_API}/nyaya/query`, {
       query: 'complex multinational commercial arbitration matter',
       jurisdiction: 'UAE'
     }, { timeout: 30000 })
@@ -243,7 +243,7 @@ export async function testSAFE_REDIRECTState() {
   console.log('\n🔍 TEST 8: SAFE_REDIRECT State Rendering...')
   
   try {
-    const response = await axios.post(`${NYAYA_API}/query`, {
+    const response = await axios.post(`${NYAYA_API}/nyaya/query`, {
       query: 'administrative tribunal appeal for government decision',
       jurisdiction: 'UK'
     }, { timeout: 30000 })
@@ -277,7 +277,7 @@ export async function testErrorHandling() {
   
   try {
     // Test with empty query
-    const response = await axios.post(`${NYAYA_API}/query`, {
+    const response = await axios.post(`${NYAYA_API}/nyaya/query`, {
       query: '',
       jurisdiction: 'IN'
     }, { timeout: 30000 })
@@ -304,7 +304,7 @@ export async function testTimeoutHandling() {
   console.log('\n🔍 TEST 10: Timeout Handling (30s limit)...')
   
   try {
-    const response = await axios.post(`${NYAYA_API}/query`, {
+    const response = await axios.post(`${NYAYA_API}/nyaya/query`, {
       query: 'test query',
       jurisdiction: 'IN'
     }, { timeout: 30000 })

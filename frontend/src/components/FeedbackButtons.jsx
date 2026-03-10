@@ -33,11 +33,6 @@ const FeedbackButtons = ({ traceId, context = '' }) => {
       return
     }
 
-    if (traceId.startsWith('mock_')) {
-      console.log('Skipping feedback submission - mock trace ID')
-      return
-    }
-
     if (!isValidFeedbackValue(value)) {
       setError('Invalid feedback value')
       return

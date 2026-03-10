@@ -38,65 +38,42 @@ export default function LegalConsultation({ onBack }) {
 
   const handleNext = async () => {
     if (step === 4 && canProceed()) {
-      // Submit to backend before moving to step 5
-      await submitToBackend()
-    } else if (step < 5) {
-      setStep(step + 1)
-    }
-  }
-
-  const submitToBackend = async () => {
-    setLoading(true)
-    setError(null)
-    
-    try {
-      const jurisdiction = jurisdictionMap[formData.country] || 'India'
+      setLoading(true)
+      setError(null)
       
-      // Log the payload for debugging
-      console.log('Submitting payload:', {
-        query: formData.description,
-        jurisdiction_hint: jurisdiction,
-        user_context: {
-          role: 'citizen',
-          confidence_required: true
-        }
-      })
-      
-      const result = await legalQueryService.submitQuery({
-        query: formData.description,
-        jurisdiction_hint: jurisdiction
-      })
-      
-      if (result.success) {
-        setBackendResponse(result.data)
-        setStep(5)
-      } else {
-        // Show mock data on error so user can see the UI
-        console.warn('Backend error, using mock data:', result.error)
-        setBackendResponse({
-          jurisdiction: jurisdiction,
-          domain: formData.issueType,
-          confidence: 0.85,
-          constitutional_articles: jurisdiction === 'India' ? ['Article 14', 'Article 21'] : [],
-          legal_route: ['jurisdiction_router_agent', `${jurisdiction.toLowerCase()}_legal_agent`],
-          trace_id: 'mock_' + Date.now()
+      try {
+        const jurisdiction = jurisdictionMap[formData.country] || 'India'
+        
+        // Log the payload for debugging
+        console.log('Submitting payload:', {
+          query: formData.description,
+          jurisdiction_hint: jurisdiction,
+          user_context: {
+            role: 'citizen',
+            confidence_required: true
+          }
         })
-        setStep(5)
+        
+        const result = await legalQueryService.submitQuery({
+          query: formData.description,
+          jurisdiction_hint: jurisdiction
+        })
+        
+        if (result.success) {
+          setBackendResponse(result.data)
+          setStep(5)
+        } else {
+          // Show error to user - NO mock data allowed
+          console.error('Backend error:', result.error)
+          setError(result.error || 'Failed to get response from backend. Please try again.')
+        }
+      } catch (err) {
+        // Show error to user - NO mock data allowed
+        console.error('Exception occurred:', err.message)
+        setError(err.message || 'Failed to connect to backend. Please try again.')
+      } finally {
+        setLoading(false)
       }
-    } catch (err) {
-      // Show mock data on exception
-      console.warn('Exception occurred, using mock data:', err.message)
-      setBackendResponse({
-        jurisdiction: jurisdictionMap[formData.country] || 'India',
-        domain: formData.issueType,
-        confidence: 0.85,
-        constitutional_articles: formData.country === 'India' ? ['Article 14', 'Article 21'] : [],
-        legal_route: ['jurisdiction_router_agent', 'legal_agent'],
-        trace_id: 'mock_' + Date.now()
-      })
-      setStep(5)
-    } finally {
-      setLoading(false)
     }
   }
 

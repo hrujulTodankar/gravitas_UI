@@ -403,7 +403,7 @@ export const TEST_BACKEND_INTEGRATION = {
   },
   test30: {
     name: 'Query endpoint returns enforcement_decision field',
-    endpoint: 'https://nyaya-ai-0f02.onrender.com/query',
+    endpoint: 'https://nyaya-ai-0f02.onrender.com/nyaya/query',
     expectedField: 'enforcement_decision',
     description: 'Response must include enforcement_decision to render correctly'
   },
