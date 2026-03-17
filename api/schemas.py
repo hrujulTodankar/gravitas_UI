@@ -16,6 +16,12 @@ class EnforcementState(str, Enum):
     SOFT_REDIRECT = "soft_redirect"  # Suggest alternative pathway
     CONDITIONAL = "conditional"  # Proceed with conditions
 
+class EnforcementVerdict(str, Enum):
+    """Gatekeeper verdict controlling whether the UI may render the decision."""
+    ENFORCEABLE = "ENFORCEABLE"        # Render full decision
+    PENDING_REVIEW = "PENDING_REVIEW"  # Show compliance-check overlay
+    NON_ENFORCEABLE = "NON_ENFORCEABLE"  # Block display, show barriers
+
 class DomainHint(str, Enum):
     CRIMINAL = "criminal"
     CIVIL = "civil"
@@ -63,7 +69,9 @@ class FeedbackRequest(BaseModel):
 class EnforcementStatus(BaseModel):
     """Represents the enforcement state of a legal pathway."""
     state: EnforcementState = EnforcementState.CLEAR
+    verdict: EnforcementVerdict = EnforcementVerdict.ENFORCEABLE
     reason: str = ""
+    barriers: List[str] = []          # Specific blockers for NON_ENFORCEABLE
     blocked_path: Optional[str] = None
     escalation_required: bool = False
     escalation_target: Optional[str] = None

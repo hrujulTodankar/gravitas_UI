@@ -511,7 +511,9 @@ class ResponseBuilder:
     def build_enforcement_status(
         trace_id: str,
         state: str = "clear",
+        verdict: str = "ENFORCEABLE",
         reason: str = "",
+        barriers: List[str] = None,
         blocked_path: Optional[str] = None,
         escalation_required: bool = False,
         escalation_target: Optional[str] = None,
@@ -519,21 +521,21 @@ class ResponseBuilder:
         safe_explanation: str = ""
     ) -> Dict[str, Any]:
         """Build enforcement status response for UI."""
-        # Validate state
         try:
             enforcement_state = EnforcementState(state)
         except ValueError:
             enforcement_state = EnforcementState.CLEAR
-        
-        # Generate safe explanation based on state
+
         if not safe_explanation:
             safe_explanation = ResponseBuilder._generate_safe_explanation(
                 enforcement_state, reason, blocked_path, redirect_suggestion
             )
-        
+
         return {
             "state": enforcement_state.value,
+            "verdict": verdict,
             "reason": reason,
+            "barriers": barriers or [],
             "blocked_path": blocked_path,
             "escalation_required": escalation_required,
             "escalation_target": escalation_target,

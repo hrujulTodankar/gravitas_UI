@@ -4,7 +4,8 @@ import asyncio
 from api.schemas import (
     QueryRequest, MultiJurisdictionRequest, ExplainReasoningRequest,
     FeedbackRequest, RLSignalRequest, NyayaResponse, MultiJurisdictionResponse,
-    ExplainReasoningResponse, FeedbackResponse, RLSignalResponse, TraceResponse
+    ExplainReasoningResponse, FeedbackResponse, RLSignalResponse, TraceResponse,
+    EnforcementVerdict
 )
 from api.dependencies import get_trace_id, validate_nonce, emit_query_received_event
 from api.response_builder import ResponseBuilder
@@ -466,7 +467,7 @@ async def get_enforcement_status(
     trace_id: str = Query(..., description="Trace identifier from query"),
     jurisdiction: str = Query(..., description="Selected jurisdiction")
 ):
-    """Fetch enforcement status for the legal pathway."""
+    """Enforcement gatekeeper — must be called before rendering any decision."""
     trace_data = _trace_store.get(trace_id)
     if not trace_data:
         raise HTTPException(
@@ -481,16 +482,30 @@ async def get_enforcement_status(
     confidence = trace_data.get("confidence", 0.5)
 
     if confidence < 0.4:
-        state, reason = "block", "Confidence too low to proceed with this legal pathway."
+        state = "block"
+        verdict = EnforcementVerdict.NON_ENFORCEABLE
+        reason = "Confidence too low to proceed with this legal pathway."
+        barriers = ["Insufficient confidence score", "Legal pathway unverifiable"]
     elif confidence < 0.65:
-        state, reason = "escalate", "Moderate confidence — escalation to senior counsel recommended."
+        state = "escalate"
+        verdict = EnforcementVerdict.PENDING_REVIEW
+        reason = "Moderate confidence — escalation to senior counsel recommended."
+        barriers = []
     elif confidence < 0.8:
-        state, reason = "conditional", "Proceed with caution; verify jurisdiction-specific requirements."
+        state = "conditional"
+        verdict = EnforcementVerdict.PENDING_REVIEW
+        reason = "Proceed with caution; verify jurisdiction-specific requirements."
+        barriers = []
     else:
-        state, reason = "clear", ""
+        state = "clear"
+        verdict = EnforcementVerdict.ENFORCEABLE
+        reason = ""
+        barriers = []
 
     return ResponseBuilder.build_enforcement_status(
         trace_id=trace_id,
         state=state,
-        reason=reason
+        verdict=verdict.value,
+        reason=reason,
+        barriers=barriers
     )
