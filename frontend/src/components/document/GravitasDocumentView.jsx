@@ -12,9 +12,8 @@
  *   4. Final Determination      → Determination   (decision, reasoning)
  *
  * Rendering rules:
- *   - NON_ENFORCEABLE verdict: body is blurred/dimmed, document is not interactive
- *   - PENDING_REVIEW verdict:  document renders with amber header, no restrictions
- *   - ENFORCEABLE verdict:     full document renders normally
+ *   - Enforcement gating is handled upstream by EnforcementGatekeeper.
+ *     GravitasDocumentView always renders all 9 fields when called directly.
  *   - Empty procedural_steps / timeline: formal empty state, never blank space
  *
  * @param {{ casePayload: import('../../lib/gravitas.types').CasePayload, onFeedback?: Function }} props
@@ -87,8 +86,6 @@ const GravitasDocumentView = ({ casePayload, loading = false, onFeedback }) => {
     reasoning
   } = casePayload
 
-  const isBlocked = enforcement_status.verdict === 'NON_ENFORCEABLE'
-
   const handleExport = () => {
     const blob = new Blob([JSON.stringify(casePayload, null, 2)], { type: 'application/json' })
     const url = URL.createObjectURL(blob)
@@ -100,7 +97,7 @@ const GravitasDocumentView = ({ casePayload, loading = false, onFeedback }) => {
   }
 
   return (
-    <article className={`gdv-document${isBlocked ? ' gdv-blocked' : ''}`}>
+    <article className="gdv-document">
 
       {/* ── 1. Metadata & Verification ── */}
       <DecisionHeader
@@ -134,7 +131,6 @@ const GravitasDocumentView = ({ casePayload, loading = false, onFeedback }) => {
             <button
               className="gdv-btn gdv-btn-feedback"
               onClick={() => onFeedback(trace_id)}
-              disabled={isBlocked}
             >
               Provide Feedback
             </button>
@@ -142,7 +138,6 @@ const GravitasDocumentView = ({ casePayload, loading = false, onFeedback }) => {
           <button
             className="gdv-btn gdv-btn-export"
             onClick={handleExport}
-            disabled={isBlocked}
           >
             Export Document
           </button>
